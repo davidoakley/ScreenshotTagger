@@ -6,8 +6,17 @@ local LGPS = LibStub("LibGPS2")
 ScreenshotTagger = {}
 ScreenshotTagger.name = "ScreenshotTagger"
 
+ZO_CreateStringId("SCREENSHOTTAGGER_NAME", "Screenshots")
+
 local pinType = "ScreenshotTaggerMapPin"
 local INFORMATION_TOOLTIP
+local mapPane = {}
+local mapScrollListData = 1
+local mapScrollListSortKeys = {
+	["mapName"] = { },
+    ["characterName"] = {  tiebreaker = "mapName" },
+}
+
 
 --Local variables -------------------------------------------------------------
 local updatePins = {}
@@ -15,7 +24,23 @@ local updating = false
 --local addon = nil
 
 
+local function GetDirectionIcon(heading)
+  if     heading >=6.0 or heading < 0.4 then return "icon-n.dds"
+  elseif heading < 1.2 then return "icon-nw.dds"
+  elseif heading < 2.0 then return "icon-w.dds"
+  elseif heading < 2.8 then return "icon-sw.dds"
+  elseif heading < 3.6 then return "icon-s.dds"
+  elseif heading < 4.4 then return "icon-se.dds"
+  elseif heading < 5.2 then return "icon-e.dds"
+  elseif heading < 6.0 then return "icon-ne.dds"
+  else   return "icon.dds"
+  end
+end
 
+local function GetPinTexturePath(pin)
+	local _, event = pin:GetPinTypeAndTag()
+	return "ScreenshotTagger/icons/" .. GetDirectionIcon(event.heading)
+end
 
 local function PinTooltipCreator(pin)
 	d("PinTooltipCreator")
@@ -56,12 +81,12 @@ local function PinTooltipCreator(pin)
 end
 
 local function ShouldDisplayPins()
-	d("ShouldDisplayPins")
+--	d("ShouldDisplayPins")
 	return true
 end
 
 local function CreatePins()
-	d("QueueCreatePins")
+--	d("QueueCreatePins")
 
 	local shouldDisplay = ShouldDisplayPins()
 	
@@ -69,7 +94,7 @@ local function CreatePins()
 	
 	d("CreatePins: iterating " .. zone .. "," .. subzone)
 	for _, event in ipairs(ScreenshotTagger.savedVariables.log) do
-	d("CreatePins: * " .. event.time)
+--	d("CreatePins: * " .. event.time)
 		if event.mapZone[1] == zone and event.mapZone[2] == subzone then
 			LMP:CreatePin(pinType, event, event.worldPosition[1], event.worldPosition[2])
 		end
@@ -87,14 +112,14 @@ local function QueueCreatePins(pinType)
 		updating = true
 		if IsPlayerActivated() then
 			if LMP.AUI.IsMinimapEnabled() then -- "Cleaner code" is in Destinations addon, but even if adding all checks this addon does the result is same. Duplicates are created with AUI
-	d("QueueCreatePins: zo_callLater")
+--	d("QueueCreatePins: zo_callLater")
 				zo_callLater(CreatePins, 150) -- Didn't find anything proper than this. If other MiniMap addons are loaded, It will fail and create duplicates
 			else
-	d("QueueCreatePins: CreatePins")
+--	d("QueueCreatePins: CreatePins")
 				CreatePins() -- Normal way. AUI will fire its refresh after this code has run so it will create duplicates if left "as is".
 			end
 		else
-	d("QueueCreatePins: registering for EVENT_PLAYER_ACTIVATED")
+--	d("QueueCreatePins: registering for EVENT_PLAYER_ACTIVATED")
 			EVENT_MANAGER:RegisterForEvent("ScreenshotTagger_PinUpdate", EVENT_PLAYER_ACTIVATED,
 				function(event)
 					EVENT_MANAGER:UnregisterForEvent("ScreenshotTagger_PinUpdate", event)
@@ -110,6 +135,118 @@ local function MapCallback()
 --	if not LMP:IsEnabled(pinType) or (GetMapType() > MAPTYPE_ZONE) then return end
 	QueueCreatePins(pinType)
 end
+
+local function createMapPane()
+    local x,y = ZO_WorldMapLocations:GetDimensions()
+    local _, point, relativeTo, relativePoint, offsetX, offsetY = ZO_WorldMapLocations:GetAnchor()
+
+    mapPane = WINDOW_MANAGER:CreateTopLevelWindow(nil)
+    mapPane:SetMouseEnabled(true)
+    mapPane:SetMovable( false )
+    mapPane:SetClampedToScreen(true)
+    mapPane:SetDimensions( x, y )
+    mapPane:SetAnchor( point, relativeTo, relativePoint, offsetX, offsetY )
+    mapPane:SetHidden( true )
+
+    -- Create Sort Headers
+    mapPane.Headers = WINDOW_MANAGER:CreateControl("$(parent)Headers",mapPane,nil)
+    mapPane.Headers:SetAnchor( TOPLEFT, mapPane, TOPLEFT, 0, 0 )
+    mapPane.Headers:SetHeight(32)
+
+    mapPane.Headers.Name = WINDOW_MANAGER:CreateControlFromVirtual("$(parent)Name",mapPane.Headers,"ZO_SortHeader")
+    mapPane.Headers.Name:SetDimensions(150,32)
+    mapPane.Headers.Name:SetAnchor( TOPLEFT, mapPane.Headers, TOPLEFT, 8, 0 )
+	
+    ZO_SortHeader_Initialize(mapPane.Headers.Name, "Date", "time", ZO_SORT_ORDER_UP, TEXT_ALIGN_LEFT, "ZoFontGameLargeBold")
+    ZO_SortHeader_SetTooltip(mapPane.Headers.Name, "Sort on screenshot date")
+
+    mapPane.Headers.Location = WINDOW_MANAGER:CreateControlFromVirtual("$(parent)Location",mapPane.Headers,"ZO_SortHeader")
+    mapPane.Headers.Location:SetDimensions(150,32)
+    mapPane.Headers.Location:SetAnchor( LEFT, mapPane.Headers.Name, RIGHT, 18, 0 )
+    ZO_SortHeader_Initialize(mapPane.Headers.Location, "Location", "locationName", ZO_SORT_ORDER_UP, TEXT_ALIGN_LEFT, "ZoFontGameLargeBold")
+    ZO_SortHeader_SetTooltip(mapPane.Headers.Location, "Sort on location")
+
+    mapPane.sortHeaders = ZO_SortHeaderGroup:New(mapPane:GetNamedChild("Headers"), SHOW_ARROWS)
+    mapPane.sortHeaders:RegisterCallback(
+        ZO_SortHeaderGroup.HEADER_CLICKED,
+        function(key, order)
+            table.sort(
+                ZO_ScrollList_GetDataList(mapPane.ScrollList),
+                function(entry1, entry2)
+                    if isInGroup(entry1.data.playerName) then
+                        if not isInGroup(entry2.data.playerName) then
+                            return true -- 1 (group member) comes before 2 (non-member)
+                        end
+                    else
+                        if isInGroup(entry2.data.playerName) then
+                            return false -- 1 (non-member) comes after 2 (group member)
+                        end
+                    end
+                    -- both members or both non-members, break the tie using the usual column sorting rules
+                    return ZO_TableOrderingFunction(entry1.data, entry2.data, key, mapScrollListSortKeys, order)
+                end)
+            ZO_ScrollList_Commit(mapPane.ScrollList)
+        end)
+    mapPane.sortHeaders:AddHeadersFromContainer()
+
+    -- Create a scrollList
+    mapPane.ScrollList = WINDOW_MANAGER:CreateControlFromVirtual("$(parent)ScreenshotTaggerScrollList", mapPane, "ZO_ScrollList")
+    mapPane.ScrollList:SetDimensions(x, y-32)
+    mapPane.ScrollList:SetAnchor(TOPLEFT, mapPane.Headers, BOTTOMLEFT, 0, 0)
+
+    -- Add a datatype to the scrollList
+    ZO_ScrollList_AddDataType(mapPane.ScrollList, mapScrollListData, "ScreenshotTaggerRow", 23,
+        function(control, data)
+
+            local nameLabel = control:GetNamedChild("Name")
+            local locationLabel = control:GetNamedChild("Location")
+
+            local friendColor = ZO_ColorDef:New(0.3, 1, 0, 1)
+            local groupColor = ZO_ColorDef:New(0.46, .73, .76, 1)
+
+            local displayedlevel = 0
+
+            nameLabel:SetText(zo_strformat("<<T:1>>", data.playerName))
+
+            if data.playerLevel < 50 then
+                displayedlevel = data.playerLevel
+            else
+                displayedlevel = "CP" .. data.playerVr
+            end
+
+            nameLabel.tooltipText = zo_strformat("<<T:1>>\n<<X:2>> <<X:3>>\n<<X:4>>",
+                data.playeratName, displayedlevel, GetClassName(1, data.playerClass), data.playerGuilds)
+
+            locationLabel:SetText(zo_strformat("<<C:1>>", data.zoneName))
+
+            if isInGroup(data.playerName) then
+                ZO_SelectableLabel_SetNormalColor(nameLabel, groupColor)
+                ZO_SelectableLabel_SetNormalColor(locationLabel, groupColor)
+
+            elseif IsFriend(data.playerName) then
+                ZO_SelectableLabel_SetNormalColor(nameLabel, friendColor)
+                ZO_SelectableLabel_SetNormalColor(locationLabel, friendColor)
+
+            else
+                ZO_SelectableLabel_SetNormalColor(nameLabel, ZO_NORMAL_TEXT)
+                ZO_SelectableLabel_SetNormalColor(locationLabel, ZO_NORMAL_TEXT)
+            end
+        end
+    )
+
+    local buttonData = {
+        normal = "ScreenshotTagger/icons/icon.dds",
+        pressed = "ScreenshotTagger/icons/icon.dds",
+        highlight = "ScreenshotTagger/icons/icon.dds",
+    }
+
+    --
+    -- Create a fragment from the window and add it to the modeBar of the WorldMap RightPane
+    --
+    local mapPaneFragment = ZO_FadeSceneFragment:New(mapPane)
+    WORLD_MAP_INFO.modeBar:Add(SCREENSHOTTAGGER_NAME, {mapPaneFragment}, buttonData)
+end
+
  
 function ScreenshotTagger.OnScreenshotSaved(eventCode, directory, filename)
   SetMapToPlayerLocation()
@@ -184,13 +321,15 @@ function ScreenshotTagger:Initialize()
 	}
   end
   
+	createMapPane()
+  
 	-- Set wich tooltip must be used
 	OnGamepadPreferredModeChanged()
 
   --local ddsPath = "ScreenshotTagger/icons/icon.dds"
   local ddsPath = "ScreenshotTagger/icons/icon.dds"
   local pinTint = ZO_SELECTED_TEXT
-  local pinLayout = { level = self.savedVariables.map.pinLevel, texture = ddsPath, size = self.savedVariables.map.pinSize, tint = pinTint }
+  local pinLayout = { level = self.savedVariables.map.pinLevel, texture = GetPinTexturePath, size = self.savedVariables.map.pinSize, tint = pinTint }
 
   local pinTooltipCreator = {}
   pinTooltipCreator.tooltip = 1 --TOOLTIP_MODE.INFORMATION

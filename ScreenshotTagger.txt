@@ -31,4 +31,5 @@ libs/LibAddonMenu-2.0/controls/slider.lua
 libs/LibAddonMenu-2.0/controls/texture.lua
 libs/LibAddonMenu-2.0/controls/iconpicker.lua
 libs/LibMapPins-1.0/LibMapPins-1.0.lua
+libs/LibWorldMapInfoTab/LibWorldMapInfoTab.lua
 ScreenshotTagger.lua
