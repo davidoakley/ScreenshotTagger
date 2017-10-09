@@ -56,12 +56,12 @@ function ScreenshotTagger.OnScreenshotSaved(eventCode, directory, filename)
 
   ScreenshotTagger.savedVariables.log[#ScreenshotTagger.savedVariables.log + 1] = event
   
---	ScreenshotTagger.populateScrollList(ScreenshotTagger.savedVariables.log)
+	ScreenshotTagger.populateScrollList(ScreenshotTagger.savedVariables.log)
 end
 
 local function WorldMapStateChanged(_, newState)
     if (newState == SCENE_SHOWING) then
---        ScreenshotTagger.populateScrollList(ScreenshotTagger.savedVariables.log)
+        ScreenshotTagger.populateScrollList(ScreenshotTagger.savedVariables.log)
     end
 end
 
@@ -83,7 +83,7 @@ function ScreenshotTagger:Initialise()
   end
   
 	ScreenshotTagger.createMapPane()
---	ScreenshotTagger.populateScrollList(ScreenshotTagger.savedVariables.log)
+	ScreenshotTagger.populateScrollList(ScreenshotTagger.savedVariables.log)
   
 	-- Set wich tooltip must be used
 	ScreenshotTagger.OnGamepadPreferredModeChanged()

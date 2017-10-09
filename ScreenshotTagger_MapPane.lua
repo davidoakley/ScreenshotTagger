@@ -30,16 +30,16 @@ function ScreenshotTagger.createMapPane()
     mapPane.Headers:SetAnchor( TOPLEFT, mapPane, TOPLEFT, 0, 0 )
     mapPane.Headers:SetHeight(32)
 
-    mapPane.Headers.Name = WINDOW_MANAGER:CreateControlFromVirtual("$(parent)Name",mapPane.Headers,"ZO_SortHeader")
-    mapPane.Headers.Name:SetDimensions(150,32)
-    mapPane.Headers.Name:SetAnchor( TOPLEFT, mapPane.Headers, TOPLEFT, 8, 0 )
+    mapPane.Headers.File = WINDOW_MANAGER:CreateControlFromVirtual("$(parent)File",mapPane.Headers,"ZO_SortHeader")
+    mapPane.Headers.File:SetDimensions(150,32)
+    mapPane.Headers.File:SetAnchor( TOPLEFT, mapPane.Headers, TOPLEFT, 8, 0 )
 	
-    ZO_SortHeader_Initialize(mapPane.Headers.Name, "Date", "time", ZO_SORT_ORDER_UP, TEXT_ALIGN_LEFT, "ZoFontGameLargeBold")
-    ZO_SortHeader_SetTooltip(mapPane.Headers.Name, "Sort on screenshot date")
+    ZO_SortHeader_Initialize(mapPane.Headers.File, "File", "fileName", ZO_SORT_ORDER_UP, TEXT_ALIGN_LEFT, "ZoFontGameLargeBold")
+    ZO_SortHeader_SetTooltip(mapPane.Headers.File, "Sort on screenshot file name")
 
     mapPane.Headers.Location = WINDOW_MANAGER:CreateControlFromVirtual("$(parent)Location",mapPane.Headers,"ZO_SortHeader")
     mapPane.Headers.Location:SetDimensions(150,32)
-    mapPane.Headers.Location:SetAnchor( LEFT, mapPane.Headers.Name, RIGHT, 18, 0 )
+    mapPane.Headers.Location:SetAnchor( LEFT, mapPane.Headers.File, RIGHT, 18, 0 )
     ZO_SortHeader_Initialize(mapPane.Headers.Location, "Location", "locationName", ZO_SORT_ORDER_UP, TEXT_ALIGN_LEFT, "ZoFontGameLargeBold")
     ZO_SortHeader_SetTooltip(mapPane.Headers.Location, "Sort on location")
 
@@ -125,18 +125,16 @@ function ScreenshotTagger.createMapPane()
 end
 
 function ScreenshotTagger.populateScrollList(log)
---[[
     local player
     local scrollData = ZO_ScrollList_GetDataList(mapPane.ScrollList)
 
     ZO_ClearNumericallyIndexedTable(scrollData)
 
---    for _, event in pairs(log) do
---		table.insert(scrollData, ZO_ScrollList_CreateDataEntry(GOTO_SCROLLLIST_DATA, event))
---    end
+    for _, event in pairs(log) do
+		table.insert(scrollData, ZO_ScrollList_CreateDataEntry(mapScrollListData, event))
+    end
 
     ZO_ScrollList_Commit(mapPane.ScrollList)
     mapPane.sortHeaders:SelectHeaderByKey("mapName")
     mapPane.sortHeaders:SelectHeaderByKey("mapName")
-	]]
 end
