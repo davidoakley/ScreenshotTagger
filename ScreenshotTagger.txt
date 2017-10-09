@@ -1,7 +1,7 @@
 ## Title: Screenshot Tagger
 ## Author: SirNightstorm
 ## Version: 0.1.0
-## APIVersion: 100021
+## APIVersion: 100020 100021
 ## XOptionalDependsOn: LibStub LibAddonMenu-2.0 libFilters libCommonInventoryFilters LibTextFilter LibCustomTitles LibCustomMenu LibMapPing LibGPS LibDateTime LibPromises LibGetText LibAnnyoingUpdateNotificationInGame
 ## OptionalDependsOn: LibStub LibMapPing LibGPS LibMapPins-1.0 LibAddonMenu-2.0
 ## SavedVariables: ScreenshotTagger_Data
@@ -32,4 +32,7 @@ libs/LibAddonMenu-2.0/controls/texture.lua
 libs/LibAddonMenu-2.0/controls/iconpicker.lua
 libs/LibMapPins-1.0/LibMapPins-1.0.lua
 libs/LibWorldMapInfoTab/LibWorldMapInfoTab.lua
+
 ScreenshotTagger.lua
+ScreenshotTagger_MapPins.lua
+ScreenshotTagger_MapPane.lua
