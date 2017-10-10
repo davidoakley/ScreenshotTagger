@@ -28,7 +28,7 @@ function ScreenshotTagger.GetPinTexturePath(pin)
 end
 
 local function PinTooltipCreator(pin)
-	d("PinTooltipCreator")
+	--d("PinTooltipCreator")
 	local _, event = pin:GetPinTypeAndTag()
 
 	local name = event.time --GetAchievementInfo(pinTag[3])
@@ -81,7 +81,7 @@ local function CreatePins()
 	
 	local zone, subzone = LMP:GetZoneAndSubzone()
 	
-	d("CreatePins: iterating " .. zone .. "," .. subzone)
+	--d("CreatePins: iterating " .. zone .. "," .. subzone)
 	for _, event in ipairs(ScreenshotTagger.savedVariables.log) do
 --	d("CreatePins: * " .. event.time)
 		if event.mapZone[1] == zone and event.mapZone[2] == subzone then
@@ -94,7 +94,7 @@ local function CreatePins()
 end
 
 local function QueueCreatePins(pinType)
-	d("QueueCreatePins")
+	--d("QueueCreatePins")
 	updatePins[pinType] = true
 
 	if not updating then
@@ -116,7 +116,7 @@ local function QueueCreatePins(pinType)
 end
  
 function ScreenshotTagger.MapPinCallback()
-	d("MapCallback")
+	--d("MapCallback")
 	if not LMP:IsEnabled(ScreenshotTagger.pinType) then return end
 --	if not LMP:IsEnabled(ScreenshotTagger.pinType) or (GetMapType() > MAPTYPE_ZONE) then return end
 	QueueCreatePins(ScreenshotTagger.pinType)
@@ -129,7 +129,7 @@ function ScreenshotTagger.OnGamepadPreferredModeChanged()
 	else
 		INFORMATION_TOOLTIP = InformationTooltip
 	end
-	d(INFORMATION_TOOLTIP)
+	--d(INFORMATION_TOOLTIP)
 end
 
 

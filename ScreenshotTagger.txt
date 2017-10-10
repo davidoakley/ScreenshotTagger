@@ -33,6 +33,7 @@ libs/LibAddonMenu-2.0/controls/iconpicker.lua
 libs/LibMapPins-1.0/LibMapPins-1.0.lua
 libs/LibWorldMapInfoTab/LibWorldMapInfoTab.lua
 
+ScreenshotTagger.xml
 ScreenshotTagger.lua
 ScreenshotTagger_MapPins.lua
 ScreenshotTagger_MapPane.lua

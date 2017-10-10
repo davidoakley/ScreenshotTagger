@@ -31,14 +31,13 @@ function ScreenshotTagger.createMapPane()
     mapPane.Headers:SetHeight(32)
 
     mapPane.Headers.File = WINDOW_MANAGER:CreateControlFromVirtual("$(parent)File",mapPane.Headers,"ZO_SortHeader")
-    mapPane.Headers.File:SetDimensions(150,32)
+    mapPane.Headers.File:SetDimensions(120,32)
     mapPane.Headers.File:SetAnchor( TOPLEFT, mapPane.Headers, TOPLEFT, 8, 0 )
-	
     ZO_SortHeader_Initialize(mapPane.Headers.File, "File", "fileName", ZO_SORT_ORDER_UP, TEXT_ALIGN_LEFT, "ZoFontGameLargeBold")
     ZO_SortHeader_SetTooltip(mapPane.Headers.File, "Sort on screenshot file name")
 
     mapPane.Headers.Location = WINDOW_MANAGER:CreateControlFromVirtual("$(parent)Location",mapPane.Headers,"ZO_SortHeader")
-    mapPane.Headers.Location:SetDimensions(150,32)
+    mapPane.Headers.Location:SetDimensions(180,32)
     mapPane.Headers.Location:SetAnchor( LEFT, mapPane.Headers.File, RIGHT, 18, 0 )
     ZO_SortHeader_Initialize(mapPane.Headers.Location, "Location", "locationName", ZO_SORT_ORDER_UP, TEXT_ALIGN_LEFT, "ZoFontGameLargeBold")
     ZO_SortHeader_SetTooltip(mapPane.Headers.Location, "Sort on location")
@@ -50,6 +49,7 @@ function ScreenshotTagger.createMapPane()
             table.sort(
                 ZO_ScrollList_GetDataList(mapPane.ScrollList),
                 function(entry1, entry2)
+					--[[
                     if isInGroup(entry1.data.playerName) then
                         if not isInGroup(entry2.data.playerName) then
                             return true -- 1 (group member) comes before 2 (non-member)
@@ -59,6 +59,7 @@ function ScreenshotTagger.createMapPane()
                             return false -- 1 (non-member) comes after 2 (group member)
                         end
                     end
+					]]
                     -- both members or both non-members, break the tie using the usual column sorting rules
                     return ZO_TableOrderingFunction(entry1.data, entry2.data, key, mapScrollListSortKeys, order)
                 end)
@@ -74,22 +75,20 @@ function ScreenshotTagger.createMapPane()
     -- Add a datatype to the scrollList
     ZO_ScrollList_AddDataType(mapPane.ScrollList, mapScrollListData, "ScreenshotTaggerRow", 23,
         function(control, data)
-
-            local nameLabel = control:GetNamedChild("Name")
+            local fileLabel = control:GetNamedChild("File")
             local locationLabel = control:GetNamedChild("Location")
+			
+			local fileSegment = string.match( data.fileName, "%d+_%d+" )
+d("data.fileName: " .. data.fileName .. " segment: " .. fileSegment)
+--			d("FileLabel: " .. fileLabel)
+--            local friendColor = ZO_ColorDef:New(0.3, 1, 0, 1)
+--            local groupColor = ZO_ColorDef:New(0.46, .73, .76, 1)
 
-            local friendColor = ZO_ColorDef:New(0.3, 1, 0, 1)
-            local groupColor = ZO_ColorDef:New(0.46, .73, .76, 1)
+--            local displayedlevel = 0
 
-            local displayedlevel = 0
-
-            nameLabel:SetText(zo_strformat("<<T:1>>", data.playerName))
-
-            if data.playerLevel < 50 then
-                displayedlevel = data.playerLevel
-            else
-                displayedlevel = "CP" .. data.playerVr
-            end
+            fileLabel:SetText(zo_strformat("<<1>>", fileSegment))
+            locationLabel:SetText(zo_strformat("<<1>>", data.locationName))
+--[[
 
             nameLabel.tooltipText = zo_strformat("<<T:1>>\n<<X:2>> <<X:3>>\n<<X:4>>",
                 data.playeratName, displayedlevel, GetClassName(1, data.playerClass), data.playerGuilds)
@@ -108,6 +107,7 @@ function ScreenshotTagger.createMapPane()
                 ZO_SelectableLabel_SetNormalColor(nameLabel, ZO_NORMAL_TEXT)
                 ZO_SelectableLabel_SetNormalColor(locationLabel, ZO_NORMAL_TEXT)
             end
+			]]
         end
     )
 
@@ -127,11 +127,15 @@ end
 function ScreenshotTagger.populateScrollList(log)
     local player
     local scrollData = ZO_ScrollList_GetDataList(mapPane.ScrollList)
-
+d("ScreenshotTagger.populateScrollList")
     ZO_ClearNumericallyIndexedTable(scrollData)
 
     for _, event in pairs(log) do
-		table.insert(scrollData, ZO_ScrollList_CreateDataEntry(mapScrollListData, event))
+		local data = {
+			fileName = event.fileName,
+			locationName = event.locationName
+		}
+		table.insert(scrollData, ZO_ScrollList_CreateDataEntry(mapScrollListData, data))
     end
 
     ZO_ScrollList_Commit(mapPane.ScrollList)
