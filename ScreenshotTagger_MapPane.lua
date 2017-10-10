@@ -7,8 +7,8 @@ local LGPS = LibStub("LibGPS2")
 local mapPane = {}
 local mapScrollListData = 1
 local mapScrollListSortKeys = {
-	["mapName"] = { },
-    ["characterName"] = {  tiebreaker = "mapName" },
+    ["fileName"] = { },
+	["zone"] = { tiebreaker = "mapName" }
 }
 
 ZO_CreateStringId("SCREENSHOTTAGGER_NAME", "Screenshots")
@@ -33,7 +33,7 @@ function ScreenshotTagger.createMapPane()
     mapPane.Headers.File = WINDOW_MANAGER:CreateControlFromVirtual("$(parent)File",mapPane.Headers,"ZO_SortHeader")
     mapPane.Headers.File:SetDimensions(120,32)
     mapPane.Headers.File:SetAnchor( TOPLEFT, mapPane.Headers, TOPLEFT, 8, 0 )
-    ZO_SortHeader_Initialize(mapPane.Headers.File, "File", "fileName", ZO_SORT_ORDER_UP, TEXT_ALIGN_LEFT, "ZoFontGameLargeBold")
+    ZO_SortHeader_Initialize(mapPane.Headers.File, "File", "fileName", ZO_SORT_ORDER_DOWN, TEXT_ALIGN_LEFT, "ZoFontGameLargeBold")
     ZO_SortHeader_SetTooltip(mapPane.Headers.File, "Sort on screenshot file name")
 
     mapPane.Headers.Location = WINDOW_MANAGER:CreateControlFromVirtual("$(parent)Location",mapPane.Headers,"ZO_SortHeader")
@@ -61,7 +61,11 @@ function ScreenshotTagger.createMapPane()
                     end
 					]]
                     -- both members or both non-members, break the tie using the usual column sorting rules
-                    return ZO_TableOrderingFunction(entry1.data, entry2.data, key, mapScrollListSortKeys, order)
+					if key == "fileName" then
+						return ZO_TableOrderingFunction(entry2.data, entry1.data, key, mapScrollListSortKeys, order)
+					else
+						return ZO_TableOrderingFunction(entry1.data, entry2.data, key, mapScrollListSortKeys, order)
+					end
                 end)
             ZO_ScrollList_Commit(mapPane.ScrollList)
         end)
@@ -73,10 +77,11 @@ function ScreenshotTagger.createMapPane()
     mapPane.ScrollList:SetAnchor(TOPLEFT, mapPane.Headers, BOTTOMLEFT, 0, 0)
 
     -- Add a datatype to the scrollList
-    ZO_ScrollList_AddDataType(mapPane.ScrollList, mapScrollListData, "ScreenshotTaggerRow", 23,
+    ZO_ScrollList_AddDataType(mapPane.ScrollList, mapScrollListData, "ScreenshotTaggerRow", 50,
         function(control, data)
             local fileLabel = control:GetNamedChild("File")
-            local locationLabel = control:GetNamedChild("Location")
+            local zoneLabel = control:GetNamedChild("Zone")
+            local mapLabel = control:GetNamedChild("MapName")
 			
 			local fileSegment = string.match( data.fileName, "%d+_%d+" )
 d("data.fileName: " .. data.fileName .. " segment: " .. fileSegment)
@@ -87,7 +92,10 @@ d("data.fileName: " .. data.fileName .. " segment: " .. fileSegment)
 --            local displayedlevel = 0
 
             fileLabel:SetText(zo_strformat("<<1>>", fileSegment))
-            locationLabel:SetText(zo_strformat("<<1>>", data.locationName))
+			fileLabel.data = data
+			
+            zoneLabel:SetText(zo_strformat("<<1>>", data.zone))
+            mapLabel:SetText(zo_strformat("<<1>>", data.mapName))
 --[[
 
             nameLabel.tooltipText = zo_strformat("<<T:1>>\n<<X:2>> <<X:3>>\n<<X:4>>",
@@ -130,15 +138,29 @@ function ScreenshotTagger.populateScrollList(log)
 d("ScreenshotTagger.populateScrollList")
     ZO_ClearNumericallyIndexedTable(scrollData)
 
-    for _, event in pairs(log) do
+    for i, event in pairs(log) do
 		local data = {
+			index = i,
 			fileName = event.fileName,
-			locationName = event.locationName
+			locationName = event.locationName,
+			zone = event.zone,
+			mapName = event.mapName,
+			mapIndex = event.mapIndex
 		}
 		table.insert(scrollData, ZO_ScrollList_CreateDataEntry(mapScrollListData, data))
     end
 
     ZO_ScrollList_Commit(mapPane.ScrollList)
-    mapPane.sortHeaders:SelectHeaderByKey("mapName")
-    mapPane.sortHeaders:SelectHeaderByKey("mapName")
+    mapPane.sortHeaders:SelectHeaderByKey("fileName")
+--    mapPane.sortHeaders:SelectHeaderByKey("fileName")
+end
+
+function ScreenshotTagger.FileOnMouseUp(self, button, upInside)
+	local unitName = self:GetText()
+--	d("ScreenshotTagger.FileOnMouseUp " .. self.data.mapIndex .. "," .. button)
+
+	if self.data.mapIndex ~= nil then
+		d("Map index " .. self.data.mapIndex)
+		ZO_WorldMap_SetMapByIndex(self.data.mapIndex)
+	end
 end

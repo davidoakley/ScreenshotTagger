@@ -2,12 +2,12 @@
     <Controls>
         <Control name="ScreenshotTaggerRow" virtual="true">
             <Anchor point="RIGHT" relativeTo="$(parent)" />
-            <Dimensions y="23"/>
+            <Dimensions y="46"/>
             <Controls>
                 <Label name="$(parent)File" inherits="ZO_SelectableLabel" font="ZoFontHeader" wrapMode="ELLIPSIS">
-                    <Dimensions x="120" y="23"/>
+                    <Dimensions x="130" y="23"/>
                     <Anchor point="TOPLEFT" offsetX="0"/>
-                    <OnMouseUp>-- fileOnMouseUp(self, button, upInside)</OnMouseUp>
+                    <OnMouseUp>ScreenshotTagger.FileOnMouseUp(self, button, upInside)</OnMouseUp>
                     <OnMouseEnter>
                         ZO_SelectableLabel_OnMouseEnter(self)
                         if self.tooltipText then
@@ -22,9 +22,13 @@
                         end
                     </OnMouseExit>
                 </Label>
-                <Label name="$(parent)Location" inherits="ZO_SelectableLabel" font="ZoFontHeader" wrapMode="ELLIPSIS">
-                    <Dimensions x="180" y="23"/>
+                <Label name="$(parent)Zone" inherits="ZO_SelectableLabel" font="ZoFontHeader" wrapMode="ELLIPSIS">
+                    <Dimensions x="170" y="23"/>
                     <Anchor point="LEFT" relativeTo="$(parent)File" relativePoint="RIGHT" offsetX="10"/>
+                </Label>
+                <Label name="$(parent)MapName" inherits="ZO_SelectableLabel" font="ZoFontGame" wrapMode="ELLIPSIS">
+                    <Dimensions x="170" y="23"/>
+                    <Anchor point="LEFT" relativeTo="$(parent)File" relativePoint="RIGHT" offsetX="20" offsetY="23"/>
                 </Label>
             </Controls>
         </Control>

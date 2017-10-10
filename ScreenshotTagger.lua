@@ -46,6 +46,7 @@ function ScreenshotTagger.OnScreenshotSaved(eventCode, directory, filename)
   event.zone = zone
   event.zoneIndex = GetUnitZoneIndex('player')
   event.mapName = mapName
+  event.mapIndex = GetCurrentMapZoneIndex()
   event.mapZone = { mapZone, mapSubzone }
   event.houseId = GetCurrentZoneHouseId()
   event.time = os.date("%Y-%m-%d %H:%M:%S")
