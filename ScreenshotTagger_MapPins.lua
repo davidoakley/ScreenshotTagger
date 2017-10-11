@@ -85,7 +85,7 @@ local function CreatePins()
 	for _, event in ipairs(ScreenshotTagger.savedVariables.log) do
 --	d("CreatePins: * " .. event.time)
 		if event.mapZone[1] == zone and event.mapZone[2] == subzone then
-			LMP:CreatePin(ScreenshotTagger.pinType, event, event.worldPosition[1], event.worldPosition[2])
+			LMP:CreatePin(ScreenshotTagger.pinType, event, event.mapPosition[1], event.mapPosition[2])
 		end
 	end
 --	updatePins = {}

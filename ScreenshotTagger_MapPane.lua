@@ -145,7 +145,11 @@ d("ScreenshotTagger.populateScrollList")
 			locationName = event.locationName,
 			zone = event.zone,
 			mapName = event.mapName,
-			mapIndex = event.mapIndex
+			mapIndex = event.mapIndex,
+			worldPosition = event.worldPosition,
+			mapPosition = event.mapPosition,
+			mapFloor = event.floor,
+			floorCount = event.floorCount
 		}
 		table.insert(scrollData, ZO_ScrollList_CreateDataEntry(mapScrollListData, data))
     end
@@ -159,8 +163,16 @@ function ScreenshotTagger.FileOnMouseUp(self, button, upInside)
 	local unitName = self:GetText()
 --	d("ScreenshotTagger.FileOnMouseUp " .. self.data.mapIndex .. "," .. button)
 
-	if self.data.mapIndex ~= nil then
-		d("Map index " .. self.data.mapIndex)
-		ZO_WorldMap_SetMapByIndex(self.data.mapIndex)
+	if self.data.worldPosition ~= nil then
+		--d("Map index " .. self.data.mapIndex)
+		--ZO_WorldMap_SetMapByIndex(self.data.mapIndex)
+		LGPS:MapZoomInMax(self.data.worldPosition[1], self.data.worldPosition[2])
+        if (self.data.floorCount > 0) then
+            SetMapFloor(self.data.mapFloor)
+        end
+		LGPS:PanToMapPosition(self.data.mapPosition[1], self.data.mapPosition[2])
+
+		LGPS:SetPlayerChoseCurrentMap()
+		ZO_WorldMap_UpdateMap()
 	end
 end

@@ -15,14 +15,16 @@ function ScreenshotTagger.OnScreenshotSaved(eventCode, directory, filename)
   SetMapToPlayerLocation()
 
   --local x, y, zoneMapIndex = gps:LocalToGlobal(GetMapPlayerPosition("player"))
-  local worldX, worldY = GetMapPlayerPosition("player")
+--  local worldX, worldY = GetMapPlayerPosition("player")
   local zone = GetUnitZone('player')
-  local nx, nz, mapHeading = GetMapPlayerPosition('player')
+  local mapX, mapY, mapHeading = GetMapPlayerPosition('player')
+  local worldX, worldY = LGPS:LocalToGlobal(mapX, mapY)
   local mapName = GetMapName()
   local isHousingZone = GetCurrentZoneHouseId() ~= 0
   local locationName = mapName
   local mapZone, mapSubzone = LMP:GetZoneAndSubzone()
   local cameraHeading = GetPlayerCameraHeading()
+  local currentMapFloor, currentMapFloorCount = GetMapFloorInfo()
 
   if mapName ~= zone then
     locationName = mapName .. ", " .. zone
@@ -46,8 +48,11 @@ function ScreenshotTagger.OnScreenshotSaved(eventCode, directory, filename)
   event.zone = zone
   event.zoneIndex = GetUnitZoneIndex('player')
   event.mapName = mapName
+  event.mapPosition = { mapX, mapY }
   event.mapIndex = GetCurrentMapZoneIndex()
   event.mapZone = { mapZone, mapSubzone }
+  event.floor = currentMapFloor
+  event.floorCount = currentMapFloorCount
   event.houseId = GetCurrentZoneHouseId()
   event.time = os.date("%Y-%m-%d %H:%M:%S")
   event.localisedDate = os.date("%x %X")
