@@ -10,6 +10,21 @@ ScreenshotTagger.pinType = "ScreenshotTaggerMapPin"
 
 --Local variables -------------------------------------------------------------
 
+function ScreenshotTagger.TakeScreenshot()
+	d("Taking screenshot")
+	ToggleShowIngameGui()
+	
+	zo_callLater(function ()
+		TakeScreenshot()
+
+		zo_callLater(function ()
+			ToggleShowIngameGui()
+		end, 500)
+
+	end, 100)
+	
+--	ToggleShowIngameGui()
+end
 
 function ScreenshotTagger.OnScreenshotSaved(eventCode, directory, filename)
   SetMapToPlayerLocation()
@@ -109,6 +124,7 @@ function ScreenshotTagger.OnAddOnLoaded(event, addonName)
   d("ScreenshotTagger: Calling Initialize")
 end
 
+ ZO_CreateStringId("SI_BINDING_NAME_SST_TAKESCREENSHOT", "Take Enhanced Screenshot")
  
 -- Finally, we'll register our event handler function to be called when the proper event occurs.
 EVENT_MANAGER:RegisterForEvent("ScreenshotTagger", EVENT_ADD_ON_LOADED, ScreenshotTagger.OnAddOnLoaded)

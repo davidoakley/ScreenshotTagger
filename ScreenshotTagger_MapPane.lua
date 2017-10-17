@@ -84,7 +84,7 @@ function ScreenshotTagger.createMapPane()
             local mapLabel = control:GetNamedChild("MapName")
 			
 			local fileSegment = string.match( data.fileName, "%d+_%d+" )
-d("data.fileName: " .. data.fileName .. " segment: " .. fileSegment)
+--d("data.fileName: " .. data.fileName .. " segment: " .. fileSegment)
 --			d("FileLabel: " .. fileLabel)
 --            local friendColor = ZO_ColorDef:New(0.3, 1, 0, 1)
 --            local groupColor = ZO_ColorDef:New(0.46, .73, .76, 1)
@@ -135,7 +135,7 @@ end
 function ScreenshotTagger.populateScrollList(log)
     local player
     local scrollData = ZO_ScrollList_GetDataList(mapPane.ScrollList)
-d("ScreenshotTagger.populateScrollList")
+--d("ScreenshotTagger.populateScrollList")
     ZO_ClearNumericallyIndexedTable(scrollData)
 
     for i, event in pairs(log) do

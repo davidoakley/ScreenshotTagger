@@ -41,7 +41,7 @@ local function PinTooltipCreator(pin)
 --	if numCompleted == 1 then
 --		table.insert(info, "[" .. GetString(SKYS_KNOWN) .. "]")
 --	end
-	d(INFORMATION_TOOLTIP.tooltip)
+--	d(INFORMATION_TOOLTIP.tooltip)
 	
 
 	if IsInGamepadPreferredMode() then
