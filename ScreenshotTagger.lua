@@ -124,7 +124,7 @@ function ScreenshotTagger.OnAddOnLoaded(event, addonName)
   d("ScreenshotTagger: Calling Initialize")
 end
 
- ZO_CreateStringId("SI_BINDING_NAME_SST_TAKESCREENSHOT", "Take Enhanced Screenshot")
+-- ZO_CreateStringId("SI_BINDING_NAME_SST_TAKESCREENSHOT", "Take Enhanced Screenshot")
  
 -- Finally, we'll register our event handler function to be called when the proper event occurs.
 EVENT_MANAGER:RegisterForEvent("ScreenshotTagger", EVENT_ADD_ON_LOADED, ScreenshotTagger.OnAddOnLoaded)

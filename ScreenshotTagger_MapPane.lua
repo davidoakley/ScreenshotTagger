@@ -11,7 +11,7 @@ local mapScrollListSortKeys = {
 	["zone"] = { tiebreaker = "mapName" }
 }
 
-ZO_CreateStringId("SCREENSHOTTAGGER_NAME", "Screenshots")
+--ZO_CreateStringId("SCREENSHOTTAGGER_NAME", "Screenshots")
 
 function ScreenshotTagger.createMapPane()
     local x,y = ZO_WorldMapLocations:GetDimensions()
@@ -33,14 +33,14 @@ function ScreenshotTagger.createMapPane()
     mapPane.Headers.File = WINDOW_MANAGER:CreateControlFromVirtual("$(parent)File",mapPane.Headers,"ZO_SortHeader")
     mapPane.Headers.File:SetDimensions(120,32)
     mapPane.Headers.File:SetAnchor( TOPLEFT, mapPane.Headers, TOPLEFT, 8, 0 )
-    ZO_SortHeader_Initialize(mapPane.Headers.File, "File", "fileName", ZO_SORT_ORDER_DOWN, TEXT_ALIGN_LEFT, "ZoFontGameLargeBold")
-    ZO_SortHeader_SetTooltip(mapPane.Headers.File, "Sort on screenshot file name")
+    ZO_SortHeader_Initialize(mapPane.Headers.File, GetString(SST_PANE_FILE_TITLE), "fileName", ZO_SORT_ORDER_DOWN, TEXT_ALIGN_LEFT, "ZoFontGameLargeBold")
+    ZO_SortHeader_SetTooltip(mapPane.Headers.File, GetString(SST_PANE_FILE_TOOLTIP))
 
     mapPane.Headers.Location = WINDOW_MANAGER:CreateControlFromVirtual("$(parent)Location",mapPane.Headers,"ZO_SortHeader")
     mapPane.Headers.Location:SetDimensions(180,32)
     mapPane.Headers.Location:SetAnchor( LEFT, mapPane.Headers.File, RIGHT, 18, 0 )
-    ZO_SortHeader_Initialize(mapPane.Headers.Location, "Location", "locationName", ZO_SORT_ORDER_UP, TEXT_ALIGN_LEFT, "ZoFontGameLargeBold")
-    ZO_SortHeader_SetTooltip(mapPane.Headers.Location, "Sort on location")
+    ZO_SortHeader_Initialize(mapPane.Headers.Location, GetString(SST_PANE_LOCATION_TITLE), "locationName", ZO_SORT_ORDER_UP, TEXT_ALIGN_LEFT, "ZoFontGameLargeBold")
+    ZO_SortHeader_SetTooltip(mapPane.Headers.Location, GetString(SST_PANE_LOCATION_TOOLTIP))
 
     mapPane.sortHeaders = ZO_SortHeaderGroup:New(mapPane:GetNamedChild("Headers"), SHOW_ARROWS)
     mapPane.sortHeaders:RegisterCallback(
@@ -129,13 +129,13 @@ function ScreenshotTagger.createMapPane()
     -- Create a fragment from the window and add it to the modeBar of the WorldMap RightPane
     --
     local mapPaneFragment = ZO_FadeSceneFragment:New(mapPane)
-    WORLD_MAP_INFO.modeBar:Add(SCREENSHOTTAGGER_NAME, {mapPaneFragment}, buttonData)
+    WORLD_MAP_INFO.modeBar:Add(SST_PANE_TITLE, {mapPaneFragment}, buttonData)
 end
 
 function ScreenshotTagger.populateScrollList(log)
     local player
     local scrollData = ZO_ScrollList_GetDataList(mapPane.ScrollList)
---d("ScreenshotTagger.populateScrollList")
+
     ZO_ClearNumericallyIndexedTable(scrollData)
 
     for i, event in pairs(log) do
@@ -159,7 +159,7 @@ function ScreenshotTagger.populateScrollList(log)
 --    mapPane.sortHeaders:SelectHeaderByKey("fileName")
 end
 
-function ScreenshotTagger.FileOnMouseUp(self, button, upInside)
+function ScreenshotTagger.PaneOnMouseUp(self, button, upInside)
 	local unitName = self:GetText()
 --	d("ScreenshotTagger.FileOnMouseUp " .. self.data.mapIndex .. "," .. button)
 

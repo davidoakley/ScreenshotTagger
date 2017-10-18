@@ -2,7 +2,6 @@
 local LMP = LibStub("LibMapPins-1.0")
 local LGPS = LibStub("LibGPS2")
 
-
 --Local variables -------------------------------------------------------------
 local updatePins = {}
 local updating = false
@@ -94,7 +93,6 @@ local function CreatePins()
 end
 
 local function QueueCreatePins(pinType)
-	--d("QueueCreatePins")
 	updatePins[pinType] = true
 
 	if not updating then
@@ -116,7 +114,6 @@ local function QueueCreatePins(pinType)
 end
  
 function ScreenshotTagger.MapPinCallback()
-	--d("MapCallback")
 	if not LMP:IsEnabled(ScreenshotTagger.pinType) then return end
 --	if not LMP:IsEnabled(ScreenshotTagger.pinType) or (GetMapType() > MAPTYPE_ZONE) then return end
 	QueueCreatePins(ScreenshotTagger.pinType)
@@ -129,7 +126,6 @@ function ScreenshotTagger.OnGamepadPreferredModeChanged()
 	else
 		INFORMATION_TOOLTIP = InformationTooltip
 	end
-	--d(INFORMATION_TOOLTIP)
 end
 
 
@@ -139,9 +135,9 @@ function ScreenshotTagger:InitialiseMapPins()
 
 	local pinTooltipCreator = {}
 	pinTooltipCreator.tooltip = 1 --TOOLTIP_MODE.INFORMATION
-	pinTooltipCreator.creator = PinTooltipCreator --function(pin)
+	pinTooltipCreator.creator = PinTooltipCreator
 
 	LMP:AddPinType(self.pinType, ScreenshotTagger.MapPinCallback, nil, pinLayout, pinTooltipCreator)
-	LMP:AddPinFilter(self.pinType, "Screenshot locations", nil, self.savedVariables.map.filterSettings)
+	LMP:AddPinFilter(self.pinType, GetString(SST_FILTER_SCREENSHOT_LOCATIONS), nil, self.savedVariables.map.filterSettings)
 end
 
